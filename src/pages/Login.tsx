@@ -15,7 +15,7 @@ export function Login() {
     // 시뮬레이션을 위한 딜레이
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/home"); // 로그인 성공 시 홈으로 이동
+      navigate("/welcome"); // 로그인 성공 시 웰컴 애니메이션으로 이동
     }, 2000);
   };
 
