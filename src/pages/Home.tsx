@@ -12,7 +12,7 @@ export function Home() {
     room.participants.some((p) => p.id === "currentUser")
   );
 
-  // 날짜 계산 (27일째)
+  // 날짜 계산
   const daysSinceStart = 27;
 
   // 남은 시간 계산 헬퍼 함수
