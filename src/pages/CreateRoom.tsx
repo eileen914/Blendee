@@ -42,7 +42,7 @@ export function CreateRoom() {
       <div className="max-w-2xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors">
+          <button onClick={() => navigate('/home')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors">
             <ArrowLeft className="w-5 h-5" />
             <span>뒤로가기</span>
           </button>

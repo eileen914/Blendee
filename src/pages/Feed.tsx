@@ -9,7 +9,7 @@ export function Feed() {
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Header */}
         <div className="mb-8">
-          <button onClick={() => navigate('/')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors">
+          <button onClick={() => navigate('/home')} className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors">
             <ArrowLeft className="w-5 h-5" />
             <span>뒤로가기</span>
           </button>
@@ -21,7 +21,7 @@ export function Feed() {
         {mockFeedPosts.length === 0 && completedRooms.length === 0 ? <div className="bg-white rounded-2xl p-12 text-center">
             <div className="text-gray-400 mb-2 text-4xl">📸</div>
             <p className="text-gray-600 mb-4">아직 완성된 사진이 없어요</p>
-            <button onClick={() => navigate('/')} className="text-blue-600 hover:text-blue-700 font-medium">
+            <button onClick={() => navigate('/home')} className="text-blue-600 hover:text-blue-700 font-medium">
               방 둘러보기 →
             </button>
           </div> : <div className="space-y-6">
