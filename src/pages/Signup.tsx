@@ -1,21 +1,37 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-export function Login() {
+export function Signup() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
+
+    // 유효성 검사
+    if (password !== confirmPassword) {
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("비밀번호는 최소 6자 이상이어야 합니다.");
+      return;
+    }
+
     setIsLoading(true);
 
-    // 로그인 로직 (추후 구현)
+    // 회원가입 로직 (추후 구현)
     // 시뮬레이션을 위한 딜레이
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/home"); // 로그인 성공 시 홈으로 이동
+      navigate("/home"); // 회원가입 성공 시 홈으로 이동
     }, 2000);
   };
 
@@ -41,7 +57,7 @@ export function Login() {
           {/* 중앙 원 */}
           <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange-200 to-blue-200"></div>
         </div>
-        <p className="text-gray-600 text-sm">로그인 중...</p>
+        <p className="text-gray-600 text-sm">회원가입 중...</p>
       </div>
     );
   }
@@ -57,8 +73,27 @@ export function Login() {
         />
       </div>
 
-      {/* 로그인 폼 */}
-      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-6">
+      {/* 회원가입 폼 */}
+      <form onSubmit={handleSubmit} className="w-full max-w-xs space-y-5">
+        {/* 이름 입력 */}
+        <div>
+          <label
+            htmlFor="name"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            이름
+          </label>
+          <input
+            id="name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="이름을 입력해주세요."
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
+            required
+          />
+        </div>
+
         {/* Email 입력 */}
         <div>
           <label
@@ -73,7 +108,7 @@ export function Login() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="이메일을 입력해주세요."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
             required
           />
         </div>
@@ -92,40 +127,53 @@ export function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="비밀번호를 입력해주세요."
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
             required
           />
         </div>
 
-        {/* Sign In 버튼 */}
+        {/* Password 확인 입력 */}
+        <div>
+          <label
+            htmlFor="confirmPassword"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Password 확인
+          </label>
+          <input
+            id="confirmPassword"
+            type="password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            placeholder="비밀번호를 확인해주세요."
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black transition-colors"
+            required
+          />
+        </div>
+
+        {/* 에러 메시지 */}
+        {error && (
+          <div className="text-sm text-red-600 text-center">{error}</div>
+        )}
+
+        {/* Sign Up 버튼 */}
         <button
           type="submit"
           className="w-full py-3 bg-black text-white rounded-lg font-medium text-sm transition-opacity hover:opacity-90"
         >
-          Sign In
+          Sign Up
         </button>
       </form>
 
-      {/* 비밀번호 찾기 및 회원가입 링크 */}
-      <div className="mt-6 space-y-3 text-center">
+      {/* 로그인 링크 */}
+      <div className="mt-6 text-center">
+        <span className="text-sm text-gray-600">이미 계정이 있으신가요? </span>
         <button
-          onClick={() => {
-            // 비밀번호 찾기 페이지로 이동 (추후 구현)
-            console.log("비밀번호 찾기");
-          }}
-          className="block w-full text-sm text-gray-600 hover:text-gray-900 transition-colors"
+          onClick={() => navigate("/login")}
+          className="text-sm text-black font-medium hover:underline"
         >
-          비밀번호를 잊으셨나요?
+          로그인
         </button>
-        <div>
-          <span className="text-sm text-gray-600">계정이 없으신가요? </span>
-          <button
-            onClick={() => navigate("/signup")}
-            className="text-sm text-black font-medium hover:underline"
-          >
-            회원가입
-          </button>
-        </div>
       </div>
     </div>
   );

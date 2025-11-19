@@ -18,10 +18,10 @@ export function NewUserPrompt() {
     <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
       {/* 로고 */}
       <div className="mb-12">
-        <img 
-          src="/images/logo.png" 
-          alt="BLENDEE" 
-          className="w-24 h-24 mx-auto object-contain"
+        <img
+          src="/images/logo.png"
+          alt="BLENDEE"
+          className="w-48 h-48 mx-auto object-contain"
         />
       </div>
 
@@ -35,7 +35,7 @@ export function NewUserPrompt() {
         {/* 예 버튼 (회원가입) */}
         <button
           onClick={handleYes}
-          className="flex-1 py-4 px-4 rounded-lg border-2 border-gray-300 bg-white text-gray-900 font-medium text-base transition-colors hover:bg-gray-50"
+          className="flex-1 py-3 px-4 rounded-lg border-2 border-gray-300 bg-white text-gray-900 font-medium text-base transition-colors hover:bg-gray-50"
         >
           <div className="flex flex-col items-center">
             <span className="text-lg mb-1">예</span>
@@ -46,7 +46,7 @@ export function NewUserPrompt() {
         {/* 아니오 버튼 (로그인) */}
         <button
           onClick={handleNo}
-          className="flex-1 py-4 px-4 rounded-lg bg-black text-white font-medium text-base transition-opacity hover:opacity-90"
+          className="flex-1 py-3 px-4 rounded-lg bg-black text-white font-medium text-base transition-opacity hover:opacity-90"
         >
           <div className="flex flex-col items-center">
             <span className="text-lg mb-1">아니오</span>
@@ -57,4 +57,3 @@ export function NewUserPrompt() {
     </div>
   );
 }
-
