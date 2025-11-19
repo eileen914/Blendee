@@ -132,7 +132,7 @@ export function RoomDetail() {
         {/* Header */}
         <div className="mb-8">
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/home")}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4 transition-colors"
           >
             <ArrowLeft className="w-5 h-5" />
