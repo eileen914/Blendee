@@ -38,26 +38,83 @@ export function Signup() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6">
-        {/* 컬러풀한 로딩 스피너 - 꽃잎 형태 */}
-        <div className="relative w-20 h-20 mb-6">
-          {/* 외곽 원형들 */}
-          <div className="absolute inset-0 rounded-full border-3 border-transparent border-t-orange-400 animate-spin"></div>
-          <div
-            className="absolute inset-1 rounded-full border-3 border-transparent border-r-yellow-400 animate-spin"
-            style={{ animationDuration: "0.8s", animationDirection: "reverse" }}
-          ></div>
-          <div
-            className="absolute inset-2 rounded-full border-3 border-transparent border-b-blue-400 animate-spin"
-            style={{ animationDuration: "1.2s" }}
-          ></div>
-          <div
-            className="absolute inset-3 rounded-full border-3 border-transparent border-l-gray-300 animate-spin"
-            style={{ animationDuration: "1.5s", animationDirection: "reverse" }}
-          ></div>
-          {/* 중앙 원 */}
-          <div className="absolute inset-4 rounded-full bg-gradient-to-br from-orange-200 to-blue-200"></div>
+        <div className="flex flex-col items-center">
+          {/* 컬러 스피너 (이미지 느낌 비슷하게) */}
+          <svg
+            className="w-28 h-28 mb-6 animate-spin"
+            viewBox="0 0 100 100"
+            style={{ animationDuration: "2.0s" }}
+          >
+            <defs>
+              <filter
+                id="login-shadow"
+                x="-50%"
+                y="-50%"
+                width="200%"
+                height="200%"
+              >
+                <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" />
+                <feOffset dx="0" dy="1" result="offsetblur" />
+                <feComponentTransfer>
+                  <feFuncA type="linear" slope="0.3" />
+                </feComponentTransfer>
+                <feMerge>
+                  <feMergeNode />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* 8개의 막대(스포크) - 45도씩 균등 배치 */}
+            <g
+              filter="url(#login-shadow)"
+              strokeLinecap="round"
+              strokeWidth="6"
+            >
+              {(() => {
+                const centerX = 50;
+                const centerY = 50;
+                const innerRadius = 12; // 막대 시작 반지름
+                const outerRadius = 36; // 막대 끝 반지름
+                const colors = [
+                  "#f97316", // 주황 (위)
+                  "#facc15", // 노랑 (오른쪽 위)
+                  "#4ade80", // 연초록 (오른쪽)
+                  "#22c55e", // 초록 (오른쪽 아래)
+                  "#38bdf8", // 파랑 (아래)
+                  "#60a5fa", // 연파랑 (왼쪽 아래)
+                  "#a5b4fc", // 연보라 (왼쪽)
+                  "#fb7185", // 핑크 (왼쪽 위)
+                ];
+
+                return colors.map((color, index) => {
+                  // 각 막대는 45도씩 간격 (0도부터 시작, 위쪽이 -90도)
+                  const angle = (index * 45 - 90) * (Math.PI / 180);
+                  const x1 = centerX + innerRadius * Math.cos(angle);
+                  const y1 = centerY + innerRadius * Math.sin(angle);
+                  const x2 = centerX + outerRadius * Math.cos(angle);
+                  const y2 = centerY + outerRadius * Math.sin(angle);
+
+                  return (
+                    <line
+                      key={index}
+                      x1={x1.toFixed(2)}
+                      y1={y1.toFixed(2)}
+                      x2={x2.toFixed(2)}
+                      y2={y2.toFixed(2)}
+                      stroke={color}
+                    />
+                  );
+                });
+              })()}
+            </g>
+          </svg>
+
+          {/* 텍스트 */}
+          <p className="text-gray-500 text-lg tracking-[0.35em]">
+            회원가입 중<span className="animate-pulse">...</span>
+          </p>
         </div>
-        <p className="text-gray-600 text-sm">회원가입 중...</p>
       </div>
     );
   }
