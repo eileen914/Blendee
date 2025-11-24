@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { mockRooms } from "../utils/mockData";
 import { Home as HomeIcon, Menu, Star, Clock, Users } from "lucide-react";
@@ -11,6 +11,83 @@ export function Home() {
   const myRooms = allRooms.filter((room) =>
     room.participants.some((p) => p.id === "currentUser")
   );
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [dragStart, setDragStart] = useState<{ y: number } | null>(null);
+
+  // 사용자 통계 계산
+  const getUserStats = () => {
+    let uploadedColors = 0;
+    let completedPhotos = 0;
+    let uploadedPosts = 0;
+
+    myRooms.forEach((room) => {
+      const myAssignment = room.colorAssignments.find(
+        (a) => a.userId === "currentUser"
+      );
+      if (myAssignment) {
+        // 업로드한 컬러 수
+        const uploaded = room.pixels.filter(
+          (p) =>
+            p.uploadedPhoto && myAssignment.colorCodes.includes(p.colorCode)
+        ).length;
+        uploadedColors += uploaded;
+      }
+
+      // 완성한 사진 수
+      if (room.isCompleted) {
+        completedPhotos++;
+      }
+
+      // 업로드한 게시물 수 (완성된 방 중 내가 참여한 것)
+      if (
+        room.isCompleted &&
+        room.participants.some((p) => p.id === "currentUser")
+      ) {
+        uploadedPosts++;
+      }
+    });
+
+    return {
+      uploadedColors,
+      completedPhotos,
+      uploadedPosts,
+    };
+  };
+
+  const stats = getUserStats();
+
+  // 터치 시작
+  const handleTouchStart = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    setDragStart({ y: touch.clientY });
+  };
+
+  // 터치 이동
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragStart) return;
+    const touch = e.touches[0];
+    const deltaY = dragStart.y - touch.clientY; // 위로 드래그하면 양수
+    const deltaYDown = touch.clientY - dragStart.y; // 아래로 드래그하면 양수
+
+    if (isMenuOpen) {
+      // 메뉴가 열려있을 때는 아래로 50px 이상 드래그하면 닫기
+      if (deltaYDown > 50) {
+        setIsMenuOpen(false);
+        setDragStart(null);
+      }
+    } else {
+      // 메뉴가 닫혀있을 때는 위로 50px 이상 드래그하면 열기
+      if (deltaY > 50) {
+        setIsMenuOpen(true);
+        setDragStart(null);
+      }
+    }
+  };
+
+  // 터치 종료
+  const handleTouchEnd = () => {
+    setDragStart(null);
+  };
 
   // 날짜 계산
   const daysSinceStart = 27;
@@ -113,21 +190,61 @@ export function Home() {
             </p>
           </div>
 
-          {/* 메뉴 아이콘 */}
-          <div className="mb-4">
-            <Menu className="w-6 h-6 text-gray-700" />
-          </div>
+          {/* 메뉴 영역 */}
+          <div className="w-full max-w-xs relative">
+            {/* 진행상황 확인하기 버튼 */}
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="w-full bg-white/90 backdrop-blur-sm text-gray-900 py-3 px-6 rounded-lg font-medium shadow-sm hover:bg-white transition-colors flex items-center gap-3 cursor-grab active:cursor-grabbing"
+            >
+              <Menu className="w-5 h-5" />
+              <span>진행상황 확인하기</span>
+            </button>
 
-          {/* 진행상황 확인하기 버튼 */}
-          <button
-            onClick={() => {
-              // 진행상황 확인 기능 (추후 구현)
-              console.log("진행상황 확인");
-            }}
-            className="w-full max-w-xs bg-white/90 backdrop-blur-sm text-gray-900 py-3 px-6 rounded-lg font-medium shadow-sm hover:bg-white transition-colors"
-          >
-            진행상황 확인하기
-          </button>
+            {/* 통계 카드 (버튼 위치에서 확장) */}
+            {isMenuOpen && (
+              <>
+                {/* 배경 오버레이 (모달 밖 클릭 감지용) */}
+                <div
+                  className="fixed inset-0 z-40"
+                  onClick={() => setIsMenuOpen(false)}
+                />
+                {/* 통계 카드 */}
+                <div
+                  className="absolute top-full left-0 right-0 mt-2 bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-2xl z-50 animate-slide-up"
+                  onTouchStart={handleTouchStart}
+                  onTouchMove={handleTouchMove}
+                  onTouchEnd={handleTouchEnd}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {/* 통계 내용 */}
+                  <div className="space-y-4">
+                    <div className="text-sm text-gray-700">
+                      내가 업로드한 컬러 수:{" "}
+                      <span className="font-semibold text-gray-900">
+                        {stats.uploadedColors}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-700">
+                      내가 완성한 사진 수:{" "}
+                      <span className="font-semibold text-gray-900">
+                        {stats.completedPhotos}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-700">
+                      내가 업로드한 게시물 수:{" "}
+                      <span className="font-semibold text-gray-900">
+                        {stats.uploadedPosts}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         {/* 참여 중인 방 카드들 (모달 형태) */}
