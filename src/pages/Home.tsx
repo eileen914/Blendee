@@ -13,6 +13,30 @@ export function Home() {
   );
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [dragStart, setDragStart] = useState<{ y: number } | null>(null);
+  const [favoriteRooms, setFavoriteRooms] = useState<Set<string>>(new Set());
+
+  // 관심 등록 토글
+  const toggleFavorite = (roomId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setFavoriteRooms((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(roomId)) {
+        newSet.delete(roomId);
+      } else {
+        newSet.add(roomId);
+      }
+      return newSet;
+    });
+  };
+
+  // 관심 등록된 방과 일반 방 분리 및 정렬
+  const sortedRooms = [...myRooms].sort((a, b) => {
+    const aIsFavorite = favoriteRooms.has(a.id);
+    const bIsFavorite = favoriteRooms.has(b.id);
+    if (aIsFavorite && !bIsFavorite) return -1;
+    if (!aIsFavorite && bIsFavorite) return 1;
+    return 0;
+  });
 
   // 사용자 통계 계산
   const getUserStats = () => {
@@ -261,10 +285,18 @@ export function Home() {
               </button>
             </div>
           ) : (
-            myRooms.map((room) => {
+            sortedRooms.map((room) => {
               const remainingPieces = getRemainingPieces(room);
               const requiredColors = getRequiredColors(room);
               const timeLeft = getTimeLeft(room.deadline);
+              const isFavorite = favoriteRooms.has(room.id);
+
+              // 더미 컬러 추가 (필요한 컬러가 부족할 때)
+              const dummyColors = ["#8B4513", "#F5DEB3", "#FFB6C1"]; // 갈색, 베이지, 핑크
+              const displayColors = [
+                ...requiredColors,
+                ...dummyColors.slice(0, Math.max(0, 3 - requiredColors.length)),
+              ].slice(0, 3);
 
               return (
                 <div
@@ -274,24 +306,42 @@ export function Home() {
                 >
                   {/* 제목 영역 */}
                   <div className="flex items-center gap-2 mb-3">
-                    <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+                    <button
+                      onClick={(e) => toggleFavorite(room.id, e)}
+                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                    >
+                      <Star
+                        className={`w-5 h-5 ${
+                          isFavorite
+                            ? "text-yellow-500 fill-yellow-500"
+                            : "text-gray-400"
+                        }`}
+                      />
+                    </button>
                     <h3 className="text-lg font-semibold text-gray-900">
                       {room.title}
                     </h3>
                   </div>
 
                   {/* 이미지와 정보 */}
-                  <div className="flex gap-4 mb-3">
-                    {/* 이미지 */}
-                    <div className="w-24 h-24 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden">
-                      <img
-                        src={room.targetImage}
-                        alt={room.title}
-                        className="w-full h-full object-cover"
-                      />
+                  <div className="flex gap-4">
+                    {/* 왼쪽: 이미지 영역 */}
+                    <div className="flex flex-col">
+                      <div className="w-24 h-24 rounded-lg bg-gray-200 flex-shrink-0 overflow-hidden mb-2">
+                        <img
+                          src={room.targetImage}
+                          alt={room.title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      {/* 참여자 수 (이미지 아래) */}
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Users className="w-4 h-4" />
+                        <span>{room.participants.length}명 참여중</span>
+                      </div>
                     </div>
 
-                    {/* 정보 */}
+                    {/* 오른쪽: 정보 영역 */}
                     <div className="flex-1">
                       <p className="text-sm text-gray-700 mb-2">
                         남은 조각 수: {remainingPieces}
@@ -300,35 +350,34 @@ export function Home() {
                         <span className="text-sm text-gray-700">
                           필요한 컬러:
                         </span>
-                        <div className="flex gap-1">
-                          {requiredColors.slice(0, 3).map((color, idx) => (
+                        <div className="flex gap-1.5 items-center">
+                          {displayColors.map((color, idx) => (
                             <div
                               key={idx}
-                              className="w-4 h-4 rounded border border-gray-300"
+                              className="w-6 h-6 rounded border border-gray-300"
                               style={{ backgroundColor: color }}
                             />
                           ))}
-                          {requiredColors.length > 3 && (
-                            <span className="text-xs text-gray-500">+</span>
-                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // 더 많은 컬러 보기 기능 (추후 구현)
+                            }}
+                            className="w-6 h-6 rounded border border-gray-300 bg-gray-100 flex items-center justify-center text-sm text-gray-600 hover:bg-gray-200 transition-colors"
+                          >
+                            +
+                          </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                      <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                         <Clock className="w-4 h-4" />
                         <span>{timeLeft}</span>
                       </div>
+                      {/* 설명 텍스트 */}
+                      <p className="text-sm text-gray-600">
+                        {room.title}을 같이 만들어봐요
+                      </p>
                     </div>
-                  </div>
-
-                  {/* 설명 텍스트 */}
-                  <p className="text-sm text-gray-600 mb-3">
-                    {room.title}을 같이 만들어봐요
-                  </p>
-
-                  {/* 참여자 수 */}
-                  <div className="flex items-center gap-1 text-sm text-gray-600">
-                    <Users className="w-4 h-4" />
-                    <span>{room.participants.length}명 참여중</span>
                   </div>
                 </div>
               );
