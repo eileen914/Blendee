@@ -215,7 +215,7 @@ export function Home() {
           </div>
 
           {/* 메뉴 영역 */}
-          <div className="w-full max-w-xs relative">
+          <div className="w-full relative">
             {/* 진행상황 확인하기 버튼 */}
             <button
               onClick={() => setIsMenuOpen(true)}
