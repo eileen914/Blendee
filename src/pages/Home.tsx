@@ -302,7 +302,9 @@ export function Home() {
                 <div
                   key={room.id}
                   onClick={() => navigate(`/room/${room.id}`)}
-                  className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
+                  className={`bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg cursor-pointer hover:shadow-xl transition-shadow ${
+                    !room.isPublic ? "border-4 border-purple-400" : ""
+                  }`}
                 >
                   {/* 제목 영역 */}
                   <div className="flex items-center gap-2 mb-3">
