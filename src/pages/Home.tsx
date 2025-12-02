@@ -8,7 +8,6 @@ import {
   Clock,
   Users,
   Image as ImageIcon,
-  Camera,
   X,
 } from "lucide-react";
 import { useRooms } from "../contexts/RoomContext";
@@ -34,9 +33,7 @@ export function Home() {
   const [selectedPieces, setSelectedPieces] = useState(64);
   const [hasTimeLimit, setHasTimeLimit] = useState(false);
   const [newRoomIsPublic, setNewRoomIsPublic] = useState(true);
-  const [imageSource, setImageSource] = useState<"album" | "camera" | null>(
-    null
-  );
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
 
   // 관심 등록 토글
   const toggleFavorite = (roomId: string, e: React.MouseEvent) => {
@@ -287,7 +284,7 @@ export function Home() {
           {/* 메뉴 영역 */}
           <div className="w-full relative">
             {/* 진행상황 확인하기 버튼 */}
-            <button
+              <button
               onClick={() => setIsMenuOpen(true)}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -296,7 +293,7 @@ export function Home() {
             >
               <Menu className="w-5 h-5" />
               <span>진행상황 확인하기</span>
-            </button>
+              </button>
 
             {/* 통계 카드 (버튼 위치에서 확장) */}
             {isMenuOpen && (
@@ -335,7 +332,7 @@ export function Home() {
                       </span>
                     </div>
                   </div>
-                </div>
+            </div>
               </>
             )}
           </div>
@@ -428,8 +425,8 @@ export function Home() {
                               key={idx}
                               className="w-6 h-6 rounded border border-gray-300"
                               style={{ backgroundColor: color }}
-                            />
-                          ))}
+                />
+              ))}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -451,7 +448,7 @@ export function Home() {
                       </p>
                     </div>
                   </div>
-                </div>
+            </div>
               );
             })
           )}
@@ -517,51 +514,48 @@ export function Home() {
                   />
                 </div>
 
-                {/* 사진 가져오기 */}
+                {/* 사진 업로드 */}
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-700 mb-3">
-                    어디서 사진을 가져오시겠어요?
+                    사진을 업로드하세요
                   </p>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setImageSource("album")}
-                      className={`flex-1 py-4 px-4 rounded-lg border-2 transition-all ${
-                        imageSource === "album"
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadedImage(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <div
+                      className={`w-full py-8 px-4 rounded-lg border-2 border-dashed transition-all cursor-pointer ${
+                        uploadedImage
                           ? "border-purple-400 bg-purple-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-gray-300 hover:border-purple-400 hover:bg-purple-50"
                       }`}
                     >
-                      <ImageIcon
-                        className={`w-6 h-6 mx-auto mb-2 ${
-                          imageSource === "album"
-                            ? "text-purple-600"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        앨범
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => setImageSource("camera")}
-                      className={`flex-1 py-4 px-4 rounded-lg border-2 transition-all ${
-                        imageSource === "camera"
-                          ? "border-purple-400 bg-purple-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <Camera
-                        className={`w-6 h-6 mx-auto mb-2 ${
-                          imageSource === "camera"
-                            ? "text-purple-600"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        카메라
-                      </span>
-                    </button>
-                  </div>
+                      <div className="flex flex-col items-center justify-center">
+                        <ImageIcon
+                          className={`w-8 h-8 mb-2 ${
+                            uploadedImage ? "text-purple-600" : "text-gray-400"
+                          }`}
+                        />
+                        {uploadedImage ? (
+                          <span className="text-sm font-medium text-purple-600">
+                            {uploadedImage.name}
+                          </span>
+                        ) : (
+                          <span className="text-sm font-medium text-gray-700">
+                            클릭하여 사진 선택
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </label>
                 </div>
 
                 {/* 조각 수 선택 */}
@@ -658,7 +652,7 @@ export function Home() {
                 </button>
               </div>
             </div>
-          </div>
+        </div>
 
           {/* + 버튼 (패널 위에 겹쳐서 배치) */}
           <div
