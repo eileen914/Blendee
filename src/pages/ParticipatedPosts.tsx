@@ -23,7 +23,7 @@ export function ParticipatedPosts() {
         background: "linear-gradient(to bottom, #e0f2fe, #fef3c7, #fce7f3)",
       }}
     >
-      <div className="max-w-md mx-auto px-4 py-4">
+      <div className="max-w-md mx-auto px-4 pt-4">
         {/* 홈 아이콘 */}
         <div className="flex flex-col items-center mb-4">
           <button
@@ -35,7 +35,10 @@ export function ParticipatedPosts() {
         </div>
 
         {/* 흰색 카드 컨테이너 */}
-        <div className="bg-white rounded-t-3xl shadow-xl p-6 mb-6">
+        <div
+          className="bg-white rounded-t-3xl shadow-xl p-6 pb-8"
+          style={{ minHeight: "calc(100vh - 120px)" }}
+        >
           {/* 제목 */}
           <div className="mb-4 text-center">
             <div className="px-4 py-1 bg-white border border-gray-300 rounded-full mb-1 inline-block">

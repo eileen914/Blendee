@@ -13,7 +13,7 @@ export function MyPosts() {
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
-    return `${year}년 ${month}월`;
+    return `${year}년 ${month}월 게시`;
   };
 
   const isDeadlineApproaching = (deadline: Date) => {
@@ -30,7 +30,7 @@ export function MyPosts() {
         background: "linear-gradient(to bottom, #e0f2fe, #fef3c7, #fce7f3)",
       }}
     >
-      <div className="max-w-md mx-auto px-4 py-4">
+      <div className="max-w-md mx-auto px-4 pt-4">
         {/* 홈 아이콘 */}
         <div className="flex flex-col items-center mb-4">
           <button
@@ -42,28 +42,37 @@ export function MyPosts() {
         </div>
 
         {/* 흰색 카드 컨테이너 */}
-        <div className="bg-white rounded-t-3xl shadow-xl p-6 mb-6">
+        <div
+          className="bg-white rounded-t-3xl shadow-xl p-6 pb-8"
+          style={{ minHeight: "calc(100vh - 120px)" }}
+        >
           {/* 제목 */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-semibold text-gray-900">내 게시물</h1>
-            <span className="text-sm text-gray-600">
+          <div className="mb-4 text-center">
+            <div className="px-4 py-1 bg-white border border-gray-300 rounded-full mb-1 inline-block">
+              <span className="text-sm font-medium text-gray-600">
+                내 게시물
+              </span>
+            </div>
+            <div className="text-sm text-gray-600 mt-1">
               {myCreatedRooms.length}개
-            </span>
+            </div>
           </div>
 
           {/* 게시물 목록 */}
           <div className="space-y-4">
-            {myCreatedRooms.map((room) => {
-              const deadlineApproaching = isDeadlineApproaching(room.deadline);
-              return (
-                <div
-                  key={room.id}
-                  onClick={() => navigate(`/room/${room.id}`)}
-                  className="bg-gray-50 rounded-2xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
-                >
-                  <div className="flex gap-4">
+            {myCreatedRooms.length > 0 ? (
+              myCreatedRooms.map((room) => {
+                const deadlineApproaching = isDeadlineApproaching(
+                  room.deadline
+                );
+                return (
+                  <div
+                    key={room.id}
+                    onClick={() => navigate(`/room/${room.id}`)}
+                    className="bg-gray-50 rounded-2xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                  >
                     {/* 이미지 */}
-                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                    <div className="w-full aspect-video bg-gray-200">
                       <img
                         src={room.targetImage}
                         alt={room.title}
@@ -72,13 +81,15 @@ export function MyPosts() {
                     </div>
 
                     {/* 정보 */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
-                        {room.title}
-                      </h3>
-                      <p className="text-sm text-gray-600 mb-2">
-                        {formatDate(room.createdAt)} 게시
-                      </p>
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {room.title}
+                        </h3>
+                        <span className="text-sm text-gray-600">
+                          {formatDate(room.createdAt)}
+                        </span>
+                      </div>
                       <div className="flex items-center gap-2 mb-2">
                         <span
                           className={`text-xs px-2 py-1 rounded ${
@@ -91,26 +102,35 @@ export function MyPosts() {
                         </span>
                       </div>
                       <p className="text-sm text-gray-700 mb-2 line-clamp-2">
-                        {room.title}에 참여하고 있어요
+                        우리집 강아지 귀여워...
                       </p>
-                      <div className="flex items-center gap-4 text-sm text-gray-600">
-                        <div className="flex items-center gap-1">
-                          <Users className="w-4 h-4" />
-                          <span>
-                            {room.participants.length}명 참여중
-                            {deadlineApproaching && (
-                              <span className="text-orange-600 font-medium ml-1">
-                                마감 임박
-                              </span>
-                            )}
-                          </span>
-                        </div>
+                      <div className="flex items-center gap-1 text-sm text-gray-600">
+                        <Users className="w-4 h-4" />
+                        <span>
+                          {room.participants.length}명 참여중
+                          {deadlineApproaching && (
+                            <span className="text-orange-600 font-medium ml-1">
+                              마감 임박
+                            </span>
+                          )}
+                        </span>
                       </div>
                     </div>
                   </div>
+                );
+              })
+            ) : (
+              // 빈 카드 형태
+              <div className="bg-gray-50 rounded-2xl overflow-hidden shadow-sm">
+                <div className="w-full aspect-video bg-gray-200"></div>
+                <div className="p-4">
+                  <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-32"></div>
                 </div>
-              );
-            })}
+              </div>
+            )}
           </div>
         </div>
       </div>
