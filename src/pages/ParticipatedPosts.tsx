@@ -13,7 +13,7 @@ export function ParticipatedPosts() {
   const formatDate = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth() + 1;
-    return `${year}년 ${month}월`;
+    return `${year}년 ${month}월 참여`;
   };
 
   return (
@@ -37,13 +37,15 @@ export function ParticipatedPosts() {
         {/* 흰색 카드 컨테이너 */}
         <div className="bg-white rounded-t-3xl shadow-xl p-6 mb-6">
           {/* 제목 */}
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-xl font-semibold text-gray-900">
-              내가 참여한 게시물
-            </h1>
-            <span className="text-sm text-gray-600">
+          <div className="mb-4 text-center">
+            <div className="px-4 py-1 bg-white border border-gray-300 rounded-full mb-1 inline-block">
+              <span className="text-sm font-medium text-gray-600">
+                내가 참여한 게시물
+              </span>
+            </div>
+            <div className="text-sm text-gray-600 mt-1">
               {participatedRooms.length}개
-            </span>
+            </div>
           </div>
 
           {/* 게시물 목록 */}
@@ -52,46 +54,44 @@ export function ParticipatedPosts() {
               <div
                 key={room.id}
                 onClick={() => navigate(`/room/${room.id}`)}
-                className="bg-gray-50 rounded-2xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+                className="bg-gray-50 rounded-2xl overflow-hidden shadow-sm cursor-pointer hover:shadow-md transition-shadow"
               >
-                <div className="flex gap-4">
-                  {/* 이미지 */}
-                  <div className="w-24 h-24 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
-                    <img
-                      src={room.targetImage}
-                      alt={room.title}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                {/* 이미지 */}
+                <div className="w-full aspect-video bg-gray-200">
+                  <img
+                    src={room.targetImage}
+                    alt={room.title}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
 
-                  {/* 정보 */}
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1 truncate">
+                {/* 정보 */}
+                <div className="p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h3 className="text-lg font-semibold text-gray-900">
                       {room.title}
                     </h3>
-                    <p className="text-sm text-gray-600 mb-2">
-                      {formatDate(room.createdAt)} 참여
-                    </p>
-                    <div className="flex items-center gap-2 mb-2">
-                      <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          room.isPublic
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-purple-100 text-purple-700"
-                        }`}
-                      >
-                        {room.isPublic ? "Public" : "Private"}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-700 mb-2 line-clamp-2">
-                      {room.title}에 참여하고 있어요
-                    </p>
-                    <div className="flex items-center gap-4 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{room.participants.length}명 참여중</span>
-                      </div>
-                    </div>
+                    <span className="text-sm text-gray-600">
+                      {formatDate(room.createdAt)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span
+                      className={`text-xs px-2 py-1 rounded ${
+                        room.isPublic
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-purple-100 text-purple-700"
+                      }`}
+                    >
+                      {room.isPublic ? "Public" : "Private"}
+                    </span>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-2 line-clamp-2">
+                    우리집 강아지 귀여워...
+                  </p>
+                  <div className="flex items-center gap-1 text-sm text-gray-600">
+                    <Users className="w-4 h-4" />
+                    <span>{room.participants.length}명 참여중</span>
                   </div>
                 </div>
               </div>
