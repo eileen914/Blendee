@@ -1,7 +1,18 @@
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Home as HomeIcon, Star, Clock, Users, Plus, Download, Share2 } from "lucide-react";
+import {
+  Home as HomeIcon,
+  Star,
+  Clock,
+  Plus,
+  Share2,
+  Check,
+} from "lucide-react";
 import { mockRooms } from "../utils/mockData";
 import { useRooms } from "../contexts/RoomContext";
+import { Pixel } from "../types";
+import { PhotoUpload } from "../components/PhotoUpload";
+import { ColorAssignment } from "../components/ColorAssignment";
 
 export function RoomDetail() {
   const { id } = useParams();
@@ -10,9 +21,49 @@ export function RoomDetail() {
   const allRooms = [...userRooms, ...mockRooms];
   const room = allRooms.find((r) => r.id === id);
 
+  const [showUpload, setShowUpload] = useState(false);
+  const [selectedPixel, setSelectedPixel] = useState<Pixel | null>(null);
+
   if (!room) {
     return <div>Room not found</div>;
   }
+
+  const myAssignment = room.colorAssignments.find(
+    (a) => a.userId === "currentUser"
+  );
+
+  const completedColors = room.pixels
+    .filter((p) => p.assignedTo === "currentUser" && p.uploadedPhoto)
+    .map((p) => p.colorCode);
+
+  const handleColorClick = (colorCode: string) => {
+    // 해당 컬러코드의 아직 업로드되지 않은 첫 번째 픽셀 찾기
+    const availablePixel = room.pixels.find(
+      (p) =>
+        p.colorCode === colorCode &&
+        p.assignedTo === "currentUser" &&
+        !p.uploadedPhoto
+    );
+    if (availablePixel) {
+      setSelectedPixel(availablePixel);
+      setShowUpload(true);
+    }
+  };
+
+  const handlePixelClick = (pixel: Pixel) => {
+    if (pixel.assignedTo === "currentUser" && !pixel.uploadedPhoto) {
+      setSelectedPixel(pixel);
+      setShowUpload(true);
+    }
+  };
+
+  const handleUpload = (file: File) => {
+    // Mock upload
+    console.log("Uploading file:", file);
+    setShowUpload(false);
+    setSelectedPixel(null);
+    alert("사진이 업로드되었습니다!");
+  };
 
   // 남은 조각 수 계산
   const remainingPixels = room.pixels.filter((p) => !p.uploadedPhoto).length;
@@ -27,6 +78,25 @@ export function RoomDetail() {
 
   // 설명 텍스트
   const description = `큐티한 우리집 강아지를 같이 만들어봐요\n우리집 강아지는 무지 귀여워요 함께해요`;
+
+  // 8x8 그리드 생성 (64개 픽셀) - PixelGrid 스타일
+  const gridSize = 8;
+  const gridPixels: ((typeof room.pixels)[0] | null)[] = [];
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    const pixel = room.pixels[i];
+    if (pixel) {
+      gridPixels.push(pixel);
+    } else {
+      // 픽셀이 없는 경우 더미 픽셀 생성
+      gridPixels.push({
+        id: i,
+        colorCode: "#CCCCCC",
+        assignedTo: null,
+        uploadedPhoto: null,
+        uploadedAt: null,
+      });
+    }
+  }
 
   return (
     <div
@@ -66,13 +136,52 @@ export function RoomDetail() {
               </span>
             </div>
 
-            {/* 이미지 */}
-            <div className="w-full aspect-square rounded-2xl overflow-hidden bg-gray-200 mb-4">
-              <img
-                src={room.targetImage}
-                alt={room.title}
-                className="w-full h-full object-cover"
-              />
+            {/* 8x8 그리드 이미지 (PixelGrid 스타일) */}
+            <div className="w-full aspect-square rounded-2xl overflow-hidden bg-white mb-4 p-1">
+              <div className="grid grid-cols-8 gap-1 h-full">
+                {gridPixels.map((pixel) => {
+                  if (!pixel) return null;
+
+                  const isMyPixel = pixel.assignedTo === "currentUser";
+                  const isCompleted = !!pixel.uploadedPhoto;
+
+                  return (
+                    <div
+                      key={pixel.id}
+                      onClick={() => handlePixelClick(pixel)}
+                      className={`
+                        aspect-square rounded-sm relative overflow-hidden cursor-pointer
+                        ${
+                          isMyPixel && !isCompleted
+                            ? "ring-2 ring-blue-500 ring-offset-1"
+                            : ""
+                        }
+                        ${isCompleted ? "opacity-100" : "opacity-40"}
+                        transition-all hover:scale-105
+                      `}
+                      style={{
+                        backgroundColor: pixel.colorCode,
+                      }}
+                    >
+                      {isCompleted && pixel.uploadedPhoto && (
+                        <img
+                          src={pixel.uploadedPhoto}
+                          alt="Uploaded"
+                          className="w-full h-full object-cover"
+                        />
+                      )}
+                      {isCompleted && (
+                        <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
+                          <Check className="w-3 h-3 text-white drop-shadow" />
+                        </div>
+                      )}
+                      {isMyPixel && !isCompleted && (
+                        <div className="absolute inset-0 bg-blue-500/10" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* 남은 조각 수와 시간 */}
@@ -88,17 +197,31 @@ export function RoomDetail() {
               </div>
             </div>
 
-            {/* 참여 완료 버튼 */}
-            <div className="bg-purple-100 rounded-2xl p-4 mb-4 text-center">
-              <div className="text-sm font-medium text-gray-700 mb-3">
-                참여 완료!
+            {/* 내 컬러 미션 또는 참여 완료 */}
+            {myAssignment && (
+              <div className="mb-4">
+                {completedColors.length === myAssignment.colorCodes.length ? (
+                  // 모든 미션 완료 시 참여 완료 버튼 표시
+                  <div className="bg-purple-100 rounded-2xl p-4 text-center">
+                    <div className="text-sm font-medium text-gray-700 mb-3">
+                      참여 완료!
+                    </div>
+                    <button className="bg-white border border-orange-300 rounded-full px-6 py-2">
+                      <span className="text-sm text-gray-700">
+                        한번 더 참여하시겠어요?
+                      </span>
+                    </button>
+                  </div>
+                ) : (
+                  // 미션 미완료 시 내 컬러 미션 표시
+                  <ColorAssignment
+                    assignment={myAssignment}
+                    completedColors={completedColors}
+                    onColorClick={handleColorClick}
+                  />
+                )}
               </div>
-              <button className="bg-white border border-orange-300 rounded-full px-6 py-2">
-                <span className="text-sm text-gray-700">
-                  한번 더 참여하시겠어요?
-                </span>
-              </button>
-            </div>
+            )}
 
             {/* 설명 텍스트 */}
             <div className="mb-4">
@@ -110,10 +233,7 @@ export function RoomDetail() {
             {/* 해시태그 */}
             <div className="flex flex-wrap gap-2 mb-4">
               {hashtags.map((tag, index) => (
-                <span
-                  key={index}
-                  className="text-sm text-blue-600 font-medium"
-                >
+                <span key={index} className="text-sm text-blue-600 font-medium">
                   {tag}
                 </span>
               ))}
@@ -152,6 +272,18 @@ export function RoomDetail() {
           </div>
         </div>
       </div>
+
+      {/* Upload Modal */}
+      {showUpload && selectedPixel && (
+        <PhotoUpload
+          colorCode={selectedPixel.colorCode}
+          onUpload={handleUpload}
+          onCancel={() => {
+            setShowUpload(false);
+            setSelectedPixel(null);
+          }}
+        />
+      )}
     </div>
   );
 }
