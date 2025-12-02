@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Landing } from "./pages/Landing";
 import { NewUserPrompt } from "./pages/NewUserPrompt";
@@ -8,7 +7,9 @@ import { WelcomeAnimation } from "./pages/WelcomeAnimation";
 import { Home } from "./pages/Home";
 import { CreateRoom } from "./pages/CreateRoom";
 import { RoomDetail } from "./pages/RoomDetail";
-import { Feed } from "./pages/Feed";
+import { MyPage } from "./pages/MyPage";
+import { ParticipatedPosts } from "./pages/ParticipatedPosts";
+import { MyPosts } from "./pages/MyPosts";
 
 export function App() {
   return (
@@ -22,7 +23,9 @@ export function App() {
         <Route path="/welcome" element={<WelcomeAnimation />} />
         <Route path="/create-room" element={<CreateRoom />} />
         <Route path="/room/:id" element={<RoomDetail />} />
-        <Route path="/feed" element={<Feed />} />
+        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/mypage/participated" element={<ParticipatedPosts />} />
+        <Route path="/mypage/my-posts" element={<MyPosts />} />
       </Routes>
     </BrowserRouter>
   );

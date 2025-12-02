@@ -8,14 +8,14 @@ import {
   Clock,
   Users,
   Image as ImageIcon,
-  Camera,
   X,
 } from "lucide-react";
 import { useRooms } from "../contexts/RoomContext";
+import { extractColorsFromImage } from "../utils/colorExtractor";
 
 export function Home() {
   const navigate = useNavigate();
-  const { rooms: userRooms } = useRooms();
+  const { rooms: userRooms, createRoom } = useRooms();
   const allRooms = [...userRooms, ...mockRooms];
   const myRooms = allRooms.filter((room) =>
     room.participants.some((p) => p.id === "currentUser")
@@ -34,9 +34,8 @@ export function Home() {
   const [selectedPieces, setSelectedPieces] = useState(64);
   const [hasTimeLimit, setHasTimeLimit] = useState(false);
   const [newRoomIsPublic, setNewRoomIsPublic] = useState(true);
-  const [imageSource, setImageSource] = useState<"album" | "camera" | null>(
-    null
-  );
+  const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
 
   // 관심 등록 토글
   const toggleFavorite = (roomId: string, e: React.MouseEvent) => {
@@ -243,9 +242,12 @@ export function Home() {
         {/* 중앙 헤더 영역 */}
         <div className="flex flex-col items-center mb-6">
           {/* 집 아이콘 */}
-          <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center mb-4 shadow-sm">
+          <button
+            onClick={() => navigate("/mypage")}
+            className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center mb-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          >
             <HomeIcon className="w-8 h-8 text-gray-700" />
-          </div>
+          </button>
 
           {/* Be Our BLENDee! 텍스트 */}
           <div
@@ -287,7 +289,7 @@ export function Home() {
           {/* 메뉴 영역 */}
           <div className="w-full relative">
             {/* 진행상황 확인하기 버튼 */}
-            <button
+              <button
               onClick={() => setIsMenuOpen(true)}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -296,7 +298,7 @@ export function Home() {
             >
               <Menu className="w-5 h-5" />
               <span>진행상황 확인하기</span>
-            </button>
+              </button>
 
             {/* 통계 카드 (버튼 위치에서 확장) */}
             {isMenuOpen && (
@@ -335,7 +337,7 @@ export function Home() {
                       </span>
                     </div>
                   </div>
-                </div>
+            </div>
               </>
             )}
           </div>
@@ -428,8 +430,8 @@ export function Home() {
                               key={idx}
                               className="w-6 h-6 rounded border border-gray-300"
                               style={{ backgroundColor: color }}
-                            />
-                          ))}
+                />
+              ))}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -451,7 +453,7 @@ export function Home() {
                       </p>
                     </div>
                   </div>
-                </div>
+            </div>
               );
             })
           )}
@@ -517,51 +519,48 @@ export function Home() {
                   />
                 </div>
 
-                {/* 사진 가져오기 */}
+                {/* 사진 업로드 */}
                 <div className="mb-6">
                   <p className="text-sm font-medium text-gray-700 mb-3">
-                    어디서 사진을 가져오시겠어요?
+                    사진을 업로드하세요
                   </p>
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setImageSource("album")}
-                      className={`flex-1 py-4 px-4 rounded-lg border-2 transition-all ${
-                        imageSource === "album"
+                  <label className="block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          setUploadedImage(file);
+                        }
+                      }}
+                      className="hidden"
+                    />
+                    <div
+                      className={`w-full py-8 px-4 rounded-lg border-2 border-dashed transition-all cursor-pointer ${
+                        uploadedImage
                           ? "border-purple-400 bg-purple-50"
-                          : "border-gray-200 hover:border-gray-300"
+                          : "border-gray-300 hover:border-purple-400 hover:bg-purple-50"
                       }`}
                     >
-                      <ImageIcon
-                        className={`w-6 h-6 mx-auto mb-2 ${
-                          imageSource === "album"
-                            ? "text-purple-600"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        앨범
-                      </span>
-                    </button>
-                    <button
-                      onClick={() => setImageSource("camera")}
-                      className={`flex-1 py-4 px-4 rounded-lg border-2 transition-all ${
-                        imageSource === "camera"
-                          ? "border-purple-400 bg-purple-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <Camera
-                        className={`w-6 h-6 mx-auto mb-2 ${
-                          imageSource === "camera"
-                            ? "text-purple-600"
-                            : "text-gray-400"
-                        }`}
-                      />
-                      <span className="text-sm font-medium text-gray-700">
-                        카메라
-                      </span>
-                    </button>
-                  </div>
+                      <div className="flex flex-col items-center justify-center">
+                        <ImageIcon
+                          className={`w-8 h-8 mb-2 ${
+                            uploadedImage ? "text-purple-600" : "text-gray-400"
+                          }`}
+                        />
+                        {uploadedImage ? (
+                          <span className="text-sm font-medium text-purple-600">
+                            {uploadedImage.name}
+                          </span>
+                        ) : (
+                          <span className="text-sm font-medium text-gray-700">
+                            클릭하여 사진 선택
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </label>
                 </div>
 
                 {/* 조각 수 선택 */}
@@ -634,38 +633,68 @@ export function Home() {
 
                 {/* 생성 버튼 */}
                 <button
-                  onClick={() => {
-                    // 게시물 생성 로직 (추후 구현)
-                    console.log("게시물 생성", {
-                      title: newRoomTitle,
-                      pieces: selectedPieces,
-                      isPublic: newRoomIsPublic,
-                      imageSource,
-                    });
-                    setIsCreateModalOpen(false);
-                    setPanelOffset(0);
-                    // 폼 초기화
-                    setNewRoomTitle("");
-                    setSelectedPieces(64);
-                    setHasTimeLimit(false);
-                    setNewRoomIsPublic(true);
-                    setImageSource(null);
+                  onClick={async () => {
+                    if (!newRoomTitle || !uploadedImage) return;
+                    
+                    setIsCreatingRoom(true);
+                    try {
+                      // 이미지를 base64로 변환
+                      const reader = new FileReader();
+                      reader.onloadend = async () => {
+                        const imageDataUrl = reader.result as string;
+                        
+                        try {
+                          // 8x8 그리드로 이미지 분할 및 컬러 추출
+                          const gridSize = 64; // 8x8
+                          const room = await createRoom(
+                            newRoomTitle,
+                            imageDataUrl,
+                            newRoomIsPublic,
+                            hasTimeLimit ? 7 : 30, // 기본 30일, 제한 시간 설정 시 7일
+                            gridSize
+                          );
+                          
+                          alert("게시물이 생성되었습니다!");
+                          setIsCreateModalOpen(false);
+                          setPanelOffset(0);
+                          // 폼 초기화
+                          setNewRoomTitle("");
+                          setSelectedPieces(64);
+                          setHasTimeLimit(false);
+                          setNewRoomIsPublic(true);
+                          setUploadedImage(null);
+                          
+                          // 생성된 방으로 이동
+                          navigate(`/room/${room.id}`);
+                        } catch (error) {
+                          console.error("게시물 생성 실패:", error);
+                          alert("게시물 생성에 실패했습니다. 다시 시도해주세요.");
+                        } finally {
+                          setIsCreatingRoom(false);
+                        }
+                      };
+                      reader.readAsDataURL(uploadedImage);
+                    } catch (error) {
+                      console.error("이미지 처리 실패:", error);
+                      alert("이미지 처리에 실패했습니다.");
+                      setIsCreatingRoom(false);
+                    }
                   }}
-                  disabled={!newRoomTitle || !imageSource}
+                  disabled={!newRoomTitle || !uploadedImage || isCreatingRoom}
                   className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  게시물 생성하기
+                  {isCreatingRoom ? "생성 중..." : "게시물 생성하기"}
                 </button>
               </div>
             </div>
-          </div>
+        </div>
 
           {/* + 버튼 (패널 위에 겹쳐서 배치) */}
           <div
             className="absolute bottom-0 left-1/2 z-40 pointer-events-auto"
             style={{
               transform: isCreateModalOpen
-                ? `translate(-50%, calc(-80vh + 40px))` // 모달이 열릴 때 패널 상단 근처로 올라감
+                ? `translate(-50%, calc(-80vh + 100px))` // 모달이 열릴 때 패널 상단 근처로 올라감
                 : "translate(-50%, 0px)", // 기본 상태: 전체가 보임
               transition: "transform 0.3s ease-out",
             }}

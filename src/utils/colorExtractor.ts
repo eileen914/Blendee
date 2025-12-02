@@ -184,13 +184,13 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 }
 
 /**
- * 색상 일치도 검증 (±10% 허용 오차)
- * RGB 값의 최대 범위가 255이므로, 10%는 약 25.5입니다.
+ * 색상 일치도 검증 (더 관대한 허용 오차)
+ * RGB 값의 최대 범위가 255이므로, 기본 tolerance는 60 (약 23%)
  */
 export function isColorMatch(
   uploadedColor: string,
   targetColor: string,
-  tolerance: number = 25 // ±10% ≈ 25 (255의 약 10%)
+  tolerance: number = 60 // 기본값 60 (더 관대한 기준)
 ): boolean {
   const diff = calculateColorDifference(uploadedColor, targetColor);
   return diff <= tolerance;

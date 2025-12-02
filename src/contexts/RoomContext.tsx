@@ -5,7 +5,7 @@ import { extractColorsFromImage, assignRandomColors } from '../utils/colorExtrac
 
 interface RoomContextType {
   rooms: Room[];
-  createRoom: (title: string, targetImage: string, isPublic: boolean, deadline: number) => Promise<Room>;
+  createRoom: (title: string, targetImage: string, isPublic: boolean, deadline: number, gridSize: number) => Promise<Room>;
   updateRoom: (roomId: string, room: Partial<Room>) => void;
 }
 
@@ -18,20 +18,28 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     title: string,
     targetImage: string,
     isPublic: boolean,
-    deadline: number
+    deadline: number,
+    gridSize: number = 64 // 기본값 64 (8x8)
   ): Promise<Room> => {
     try {
-      // 이미지에서 색상 추출 (16x16 = 256개)
-      const colors = await extractColorsFromImage(targetImage, 256);
+      // 이미지를 그리드로 분할하여 각 영역의 대표 컬러 추출
+      const colors = await extractColorsFromImage(targetImage, gridSize);
       
-      // 픽셀 생성
-      const pixels: Pixel[] = colors.map((color, i) => ({
-        id: i,
-        colorCode: color,
-        assignedTo: null,
-        uploadedPhoto: null,
-        uploadedAt: null
-      }));
+      // 사용자에게 할당할 컬러코드 선택
+      const assignedColorCodes = assignRandomColors(colors, 3, 5);
+      
+      // 픽셀 생성 - 각 영역의 대표 컬러코드로 픽셀 생성
+      const pixels: Pixel[] = colors.map((color, i) => {
+        // 할당된 컬러코드에 해당하는 픽셀은 currentUser에게 할당
+        const isAssigned = assignedColorCodes.includes(color);
+        return {
+          id: i,
+          colorCode: color, // 각 영역의 대표 컬러코드
+          assignedTo: isAssigned ? 'currentUser' : null,
+          uploadedPhoto: null,
+          uploadedAt: null
+        };
+      });
 
       // 새 방 생성
       const newRoom: Room = {
@@ -47,12 +55,12 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
         colorAssignments: [
           {
             userId: 'currentUser',
-            colorCodes: assignRandomColors(colors, 3, 5),
+            colorCodes: assignedColorCodes, // 할당된 컬러코드
             deadline: new Date(Date.now() + deadline * 86400000)
           }
         ],
         isCompleted: false,
-        gridSize: 256
+        gridSize: gridSize // 64 (8x8)
       };
 
       setRooms(prev => [newRoom, ...prev]);
