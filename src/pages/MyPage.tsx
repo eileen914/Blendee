@@ -42,9 +42,13 @@ export function MyPage() {
         {/* 흰색 카드 컨테이너 */}
         <div className="bg-white rounded-t-3xl shadow-xl p-6 mb-6">
           {/* 제목 */}
-          <h1 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-            내 프로필
-          </h1>
+          <div className="text-center mb-6">
+            <div className="px-4 py-1 bg-white border border-gray-300 rounded-full inline-block">
+              <span className="text-sm font-medium text-gray-600">
+                내 프로필
+              </span>
+            </div>
+          </div>
 
           {/* 프로필 섹션 */}
           <div className="flex flex-col items-center mb-8">
@@ -98,7 +102,7 @@ export function MyPage() {
 
           {/* 내가 참여한 게시물 섹션 */}
           <div className="mb-6">
-            <div className="px-4 py-2 bg-white border border-gray-300 rounded-full mb-4 inline-block">
+            <div className="px-4 py-1 bg-white border border-gray-300 rounded-full mb-4 inline-block">
               <span className="text-sm font-medium text-gray-600">
                 내가 참여한 게시물
               </span>
@@ -148,7 +152,7 @@ export function MyPage() {
 
           {/* 내 게시물 섹션 */}
           <div className="mb-4">
-            <div className="px-4 py-2 bg-white border border-gray-300 rounded-full mb-4 inline-block">
+            <div className="px-4 py-1 bg-white border border-gray-300 rounded-full mb-4 inline-block">
               <span className="text-sm font-medium text-gray-600">
                 내 게시물
               </span>
