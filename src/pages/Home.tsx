@@ -659,7 +659,7 @@ export function Home() {
             className="absolute bottom-0 left-1/2 z-40 pointer-events-auto"
             style={{
               transform: isCreateModalOpen
-                ? `translate(-50%, calc(-80vh + 40px))` // 모달이 열릴 때 패널 상단 근처로 올라감
+                ? `translate(-50%, calc(-80vh + 100px))` // 모달이 열릴 때 패널 상단 근처로 올라감
                 : "translate(-50%, 0px)", // 기본 상태: 전체가 보임
               transition: "transform 0.3s ease-out",
             }}
