@@ -21,14 +21,15 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
     deadline: number
   ): Promise<Room> => {
     try {
-      // 이미지에서 색상 추출 (16x16 = 256개)
-      const colors = await extractColorsFromImage(targetImage, 256);
+      // 이미지를 8x8 그리드로 분할하여 각 영역의 대표 컬러 추출 (64개)
+      const gridSize = 64; // 8x8
+      const colors = await extractColorsFromImage(targetImage, gridSize);
       
-      // 픽셀 생성
+      // 픽셀 생성 - 각 영역의 대표 컬러코드로 픽셀 생성
       const pixels: Pixel[] = colors.map((color, i) => ({
         id: i,
-        colorCode: color,
-        assignedTo: null,
+        colorCode: color, // 각 영역의 대표 컬러코드
+        assignedTo: null, // 초기에는 할당되지 않음
         uploadedPhoto: null,
         uploadedAt: null
       }));
@@ -47,12 +48,12 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
         colorAssignments: [
           {
             userId: 'currentUser',
-            colorCodes: assignRandomColors(colors, 3, 5),
+            colorCodes: assignRandomColors(colors, 3, 5), // 사용자에게 랜덤하게 3-5개 컬러 할당
             deadline: new Date(Date.now() + deadline * 86400000)
           }
         ],
         isCompleted: false,
-        gridSize: 256
+        gridSize: gridSize // 64 (8x8)
       };
 
       setRooms(prev => [newRoom, ...prev]);

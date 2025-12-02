@@ -11,10 +11,11 @@ import {
   X,
 } from "lucide-react";
 import { useRooms } from "../contexts/RoomContext";
+import { extractColorsFromImage } from "../utils/colorExtractor";
 
 export function Home() {
   const navigate = useNavigate();
-  const { rooms: userRooms } = useRooms();
+  const { rooms: userRooms, createRoom } = useRooms();
   const allRooms = [...userRooms, ...mockRooms];
   const myRooms = allRooms.filter((room) =>
     room.participants.some((p) => p.id === "currentUser")
@@ -34,6 +35,7 @@ export function Home() {
   const [hasTimeLimit, setHasTimeLimit] = useState(false);
   const [newRoomIsPublic, setNewRoomIsPublic] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<File | null>(null);
+  const [isCreatingRoom, setIsCreatingRoom] = useState(false);
 
   // 관심 등록 토글
   const toggleFavorite = (roomId: string, e: React.MouseEvent) => {
@@ -631,27 +633,56 @@ export function Home() {
 
                 {/* 생성 버튼 */}
                 <button
-                  onClick={() => {
-                    // 게시물 생성 로직 (추후 구현)
-                    console.log("게시물 생성", {
-                      title: newRoomTitle,
-                      pieces: selectedPieces,
-                      isPublic: newRoomIsPublic,
-                      imageSource,
-                    });
-                    setIsCreateModalOpen(false);
-                    setPanelOffset(0);
-                    // 폼 초기화
-                    setNewRoomTitle("");
-                    setSelectedPieces(64);
-                    setHasTimeLimit(false);
-                    setNewRoomIsPublic(true);
-                    setImageSource(null);
+                  onClick={async () => {
+                    if (!newRoomTitle || !uploadedImage) return;
+                    
+                    setIsCreatingRoom(true);
+                    try {
+                      // 이미지를 base64로 변환
+                      const reader = new FileReader();
+                      reader.onloadend = async () => {
+                        const imageDataUrl = reader.result as string;
+                        
+                        try {
+                          // 8x8 그리드로 이미지 분할 및 컬러 추출
+                          const gridSize = 64; // 8x8
+                          const room = await createRoom(
+                            newRoomTitle,
+                            imageDataUrl,
+                            newRoomIsPublic,
+                            hasTimeLimit ? 7 : 30 // 기본 30일, 제한 시간 설정 시 7일
+                          );
+                          
+                          alert("게시물이 생성되었습니다!");
+                          setIsCreateModalOpen(false);
+                          setPanelOffset(0);
+                          // 폼 초기화
+                          setNewRoomTitle("");
+                          setSelectedPieces(64);
+                          setHasTimeLimit(false);
+                          setNewRoomIsPublic(true);
+                          setUploadedImage(null);
+                          
+                          // 생성된 방으로 이동
+                          navigate(`/room/${room.id}`);
+                        } catch (error) {
+                          console.error("게시물 생성 실패:", error);
+                          alert("게시물 생성에 실패했습니다. 다시 시도해주세요.");
+                        } finally {
+                          setIsCreatingRoom(false);
+                        }
+                      };
+                      reader.readAsDataURL(uploadedImage);
+                    } catch (error) {
+                      console.error("이미지 처리 실패:", error);
+                      alert("이미지 처리에 실패했습니다.");
+                      setIsCreatingRoom(false);
+                    }
                   }}
-                  disabled={!newRoomTitle || !imageSource}
+                  disabled={!newRoomTitle || !uploadedImage || isCreatingRoom}
                   className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  게시물 생성하기
+                  {isCreatingRoom ? "생성 중..." : "게시물 생성하기"}
                 </button>
               </div>
             </div>

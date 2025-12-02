@@ -17,12 +17,26 @@ import { ColorAssignment } from "../components/ColorAssignment";
 export function RoomDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { rooms: userRooms } = useRooms();
+  const { rooms: userRooms, updateRoom } = useRooms();
   const allRooms = [...userRooms, ...mockRooms];
-  const room = allRooms.find((r) => r.id === id);
+  const originalRoom = allRooms.find((r) => r.id === id);
 
   const [showUpload, setShowUpload] = useState(false);
   const [selectedPixel, setSelectedPixel] = useState<Pixel | null>(null);
+  const [uploadedPhotos, setUploadedPhotos] = useState<Map<number, string>>(
+    new Map()
+  );
+
+  // 로컬 상태와 원본 데이터를 합쳐서 새로운 room 객체 생성
+  const room = originalRoom
+    ? {
+        ...originalRoom,
+        pixels: originalRoom.pixels.map((pixel) => ({
+          ...pixel,
+          uploadedPhoto: uploadedPhotos.get(pixel.id) || pixel.uploadedPhoto,
+        })),
+      }
+    : null;
 
   if (!room) {
     return <div>Room not found</div>;
@@ -57,12 +71,56 @@ export function RoomDetail() {
     }
   };
 
-  const handleUpload = (file: File) => {
-    // Mock upload
-    console.log("Uploading file:", file);
+  const handleUpload = async (file: File) => {
+    if (!selectedPixel || !originalRoom) return;
+
+    // 파일을 base64로 변환
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Image = reader.result as string;
+
+      // 같은 컬러코드를 가진 모든 픽셀에 업로드된 사진 저장
+      const colorCode = selectedPixel.colorCode;
+      const updatedMap = new Map(uploadedPhotos);
+
+      room.pixels.forEach((pixel) => {
+        if (
+          pixel.colorCode === colorCode &&
+          pixel.assignedTo === "currentUser" &&
+          !pixel.uploadedPhoto
+        ) {
+          updatedMap.set(pixel.id, base64Image);
+        }
+      });
+
+      setUploadedPhotos(updatedMap);
+
+      // 완료 알림
+      alert("사진이 업로드되었습니다!");
+
+      // 모든 픽셀이 완성되었는지 확인
+      const updatedPixels = room.pixels.map((p) => {
+        const uploadedPhoto = updatedMap.get(p.id);
+        return uploadedPhoto ? { ...p, uploadedPhoto } : p;
+      });
+      const allCompleted = updatedPixels.every((p) => p.uploadedPhoto);
+
+      if (allCompleted) {
+        alert("축하합니다! 모든 픽셀이 완성되었습니다! 🎉");
+      }
+
+      // Context에도 업데이트 (사용자가 만든 방인 경우)
+      if (userRooms.find((r) => r.id === originalRoom.id)) {
+        updateRoom(originalRoom.id, {
+          pixels: updatedPixels,
+          isCompleted: allCompleted,
+        });
+      }
+    };
+    reader.readAsDataURL(file);
+
     setShowUpload(false);
     setSelectedPixel(null);
-    alert("사진이 업로드되었습니다!");
   };
 
   // 남은 조각 수 계산
