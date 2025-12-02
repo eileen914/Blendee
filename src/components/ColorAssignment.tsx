@@ -50,7 +50,7 @@ export function ColorAssignment({
           onClick={() => !isCompleted && onColorClick?.(color)}
           className={`
             flex items-center gap-3 p-3 rounded-lg border-2 transition-all
-            ${isCompleted ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200 cursor-pointer hover:bg-gray-100'}
+            ${isCompleted ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200 cursor-pointer hover:bg-gray-100'}
           `}
         >
               <div className="w-10 h-10 rounded-lg shadow-sm flex-shrink-0" style={{

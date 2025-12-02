@@ -26,15 +26,39 @@ export function RoomDetail() {
   const [uploadedPhotos, setUploadedPhotos] = useState<Map<number, string>>(
     new Map()
   );
+  const [assignedPixels, setAssignedPixels] = useState<Map<number, string>>(
+    new Map()
+  );
+  const [newAssignedColorCodes, setNewAssignedColorCodes] = useState<string[]>(
+    []
+  );
 
   // 로컬 상태와 원본 데이터를 합쳐서 새로운 room 객체 생성
   const room = originalRoom
     ? {
         ...originalRoom,
-        pixels: originalRoom.pixels.map((pixel) => ({
-          ...pixel,
-          uploadedPhoto: uploadedPhotos.get(pixel.id) || pixel.uploadedPhoto,
-        })),
+        pixels: originalRoom.pixels.map((pixel) => {
+          const newAssignedTo = assignedPixels.get(pixel.id);
+          return {
+            ...pixel,
+            assignedTo:
+              newAssignedTo !== undefined ? newAssignedTo : pixel.assignedTo,
+            uploadedPhoto: uploadedPhotos.get(pixel.id) || pixel.uploadedPhoto,
+          };
+        }),
+        colorAssignments: originalRoom.colorAssignments.map((assignment) => {
+          if (assignment.userId === "currentUser") {
+            // 새로 할당된 컬러코드 추가 (중복 제거)
+            const newColorCodes = Array.from(
+              new Set([...assignment.colorCodes, ...newAssignedColorCodes])
+            );
+            return {
+              ...assignment,
+              colorCodes: newColorCodes,
+            };
+          }
+          return assignment;
+        }),
       }
     : null;
 
@@ -46,9 +70,18 @@ export function RoomDetail() {
     (a) => a.userId === "currentUser"
   );
 
-  const completedColors = room.pixels
-    .filter((p) => p.assignedTo === "currentUser" && p.uploadedPhoto)
-    .map((p) => p.colorCode);
+  // 각 컬러코드마다 할당된 픽셀 중 하나라도 업로드되었는지 확인
+  const completedColors = myAssignment
+    ? myAssignment.colorCodes.filter((colorCode) => {
+        // 해당 컬러코드를 가진 픽셀 중 하나라도 업로드되었는지 확인
+        return room.pixels.some(
+          (p) =>
+            p.colorCode === colorCode &&
+            p.assignedTo === "currentUser" &&
+            p.uploadedPhoto
+        );
+      })
+    : [];
 
   const handleColorClick = (colorCode: string) => {
     // 해당 컬러코드의 아직 업로드되지 않은 첫 번째 픽셀 찾기
@@ -58,10 +91,86 @@ export function RoomDetail() {
         p.assignedTo === "currentUser" &&
         !p.uploadedPhoto
     );
+
     if (availablePixel) {
       setSelectedPixel(availablePixel);
       setShowUpload(true);
     }
+  };
+
+  const handleParticipateAgain = () => {
+    if (!originalRoom || !myAssignment) return;
+
+    // 모든 픽셀의 컬러코드 목록 가져오기
+    const allColorCodes = Array.from(
+      new Set(originalRoom.pixels.map((p) => p.colorCode))
+    );
+
+    // 이미 할당된 컬러코드 제외
+    const currentAssignment = room.colorAssignments.find(
+      (a) => a.userId === "currentUser"
+    );
+    const assignedColorCodes = currentAssignment?.colorCodes || [];
+    const availableColorCodes = allColorCodes.filter(
+      (colorCode) => !assignedColorCodes.includes(colorCode)
+    );
+
+    if (availableColorCodes.length === 0) {
+      alert("더 이상 할당할 수 있는 컬러코드가 없습니다.");
+      return;
+    }
+
+    // 랜덤으로 하나 선택
+    const newColorCode =
+      availableColorCodes[
+        Math.floor(Math.random() * availableColorCodes.length)
+      ];
+
+    // 해당 컬러코드를 가진 픽셀들을 currentUser에게 할당 (로컬 state 업데이트)
+    const updatedAssignedPixels = new Map(assignedPixels);
+    originalRoom.pixels.forEach((pixel) => {
+      if (
+        pixel.colorCode === newColorCode &&
+        pixel.assignedTo !== "currentUser" &&
+        !pixel.uploadedPhoto
+      ) {
+        updatedAssignedPixels.set(pixel.id, "currentUser");
+      }
+    });
+
+    setAssignedPixels(updatedAssignedPixels);
+    setNewAssignedColorCodes([...newAssignedColorCodes, newColorCode]);
+
+    // Context에도 업데이트 (사용자가 만든 방인 경우)
+    if (userRooms.find((r) => r.id === originalRoom.id)) {
+      const updatedPixels = originalRoom.pixels.map((pixel) => {
+        const newAssignedTo = updatedAssignedPixels.get(pixel.id);
+        return {
+          ...pixel,
+          assignedTo:
+            newAssignedTo !== undefined ? newAssignedTo : pixel.assignedTo,
+        };
+      });
+
+      const updatedColorAssignments = originalRoom.colorAssignments.map(
+        (assignment) => {
+          if (assignment.userId === "currentUser") {
+            return {
+              ...assignment,
+              colorCodes: [...assignment.colorCodes, newColorCode],
+            };
+          }
+          return assignment;
+        }
+      );
+
+      updateRoom(originalRoom.id, {
+        pixels: updatedPixels,
+        colorAssignments: updatedColorAssignments,
+      });
+    }
+
+    alert(`새로운 컬러코드 ${newColorCode}가 할당되었습니다!`);
   };
 
   const handlePixelClick = (pixel: Pixel) => {
@@ -116,11 +225,12 @@ export function RoomDetail() {
           isCompleted: allCompleted,
         });
       }
+
+      // 업로드 완료 후 모달 닫기
+      setShowUpload(false);
+      setSelectedPixel(null);
     };
     reader.readAsDataURL(file);
-
-    setShowUpload(false);
-    setSelectedPixel(null);
   };
 
   // 남은 조각 수 계산
@@ -264,7 +374,10 @@ export function RoomDetail() {
                     <div className="text-sm font-medium text-gray-700 mb-3">
                       참여 완료!
                     </div>
-                    <button className="bg-white border border-orange-300 rounded-full px-6 py-2">
+                    <button
+                      onClick={handleParticipateAgain}
+                      className="bg-white border border-orange-300 rounded-full px-6 py-2 hover:bg-orange-50 transition-colors cursor-pointer"
+                    >
                       <span className="text-sm text-gray-700">
                         한번 더 참여하시겠어요?
                       </span>

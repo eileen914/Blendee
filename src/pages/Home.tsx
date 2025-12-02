@@ -650,7 +650,8 @@ export function Home() {
                             newRoomTitle,
                             imageDataUrl,
                             newRoomIsPublic,
-                            hasTimeLimit ? 7 : 30 // 기본 30일, 제한 시간 설정 시 7일
+                            hasTimeLimit ? 7 : 30, // 기본 30일, 제한 시간 설정 시 7일
+                            gridSize
                           );
                           
                           alert("게시물이 생성되었습니다!");
