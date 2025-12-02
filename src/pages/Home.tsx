@@ -240,9 +240,12 @@ export function Home() {
         {/* 중앙 헤더 영역 */}
         <div className="flex flex-col items-center mb-6">
           {/* 집 아이콘 */}
-          <div className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center mb-4 shadow-sm">
+          <button
+            onClick={() => navigate("/mypage")}
+            className="w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center mb-4 shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+          >
             <HomeIcon className="w-8 h-8 text-gray-700" />
-          </div>
+          </button>
 
           {/* Be Our BLENDee! 텍스트 */}
           <div
