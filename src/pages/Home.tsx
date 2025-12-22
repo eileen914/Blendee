@@ -231,7 +231,7 @@ export function Home() {
       <div className="max-w-md mx-auto px-4 py-6">
         {/* 상단 헤더 */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-white">
+          <h1 className="text-2xl font-bold text-white bevan-regular">
             BLEND<span className="lowercase">ee</span>
           </h1>
           <span className="text-sm text-white font-medium">
@@ -260,7 +260,7 @@ export function Home() {
               className="w-full bg-white/90 backdrop-blur-sm text-gray-900 py-3 px-6 rounded-lg font-medium shadow-sm hover:bg-white transition-colors flex items-center gap-3 cursor-grab active:cursor-grabbing"
             >
               <Menu className="w-5 h-5" />
-              <span>진행상황 확인하기</span>
+              <span className="text-sm">진행상황 확인하기</span>
             </button>
 
             {/* 통계 카드 (버튼 위치에서 확장) */}
@@ -281,19 +281,19 @@ export function Home() {
                 >
                   {/* 통계 내용 */}
                   <div className="space-y-4">
-                    <div className="text-sm text-gray-700">
+                    <div className="text-xs text-gray-700">
                       내가 업로드한 컬러 수:{" "}
                       <span className="font-semibold text-gray-900">
                         {stats.uploadedColors}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-xs text-gray-700">
                       내가 완성한 사진 수:{" "}
                       <span className="font-semibold text-gray-900">
                         {stats.completedPhotos}
                       </span>
                     </div>
-                    <div className="text-sm text-gray-700">
+                    <div className="text-xs text-gray-700">
                       내가 업로드한 게시물 수:{" "}
                       <span className="font-semibold text-gray-900">
                         {stats.uploadedPosts}
@@ -310,11 +310,13 @@ export function Home() {
         <div className="space-y-4">
           {myRooms.length === 0 ? (
             <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-12 text-center shadow-lg">
-              <div className="text-gray-400 mb-2 text-4xl">📸</div>
-              <p className="text-gray-600 mb-4">아직 참여 중인 방이 없어요</p>
+              <div className="text-gray-400 mb-2 text-3xl">📸</div>
+              <p className="text-sm text-gray-600 mb-4">
+                아직 참여 중인 방이 없어요
+              </p>
               <button
                 onClick={() => navigate("/create-room")}
-                className="text-blue-600 hover:text-blue-700 font-medium"
+                className="text-sm text-blue-600 hover:text-blue-700 font-medium"
               >
                 첫 방 만들기 →
               </button>
@@ -337,27 +339,38 @@ export function Home() {
                 <div
                   key={room.id}
                   onClick={() => navigate(`/room/${room.id}`)}
-                  className={`bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg cursor-pointer hover:shadow-xl transition-shadow ${
-                    !room.isPublic ? "border-4 border-purple-400" : ""
-                  }`}
+                  className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 shadow-lg cursor-pointer hover:shadow-xl transition-shadow"
                 >
                   {/* 제목 영역 */}
-                  <div className="flex items-center gap-2 mb-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2 flex-1">
+                      <button
+                        onClick={(e) => toggleFavorite(room.id, e)}
+                        className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      >
+                        <Star
+                          className={`w-5 h-5 ${
+                            isFavorite
+                              ? "text-yellow-500 fill-yellow-500"
+                              : "text-gray-400"
+                          }`}
+                        />
+                      </button>
+                      <h3 className="text-base font-semibold text-gray-900">
+                        {room.title}
+                      </h3>
+                    </div>
+                    {/* Private/Public 버튼 */}
                     <button
-                      onClick={(e) => toggleFavorite(room.id, e)}
-                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                      className={`px-3 py-1 rounded-full text-xs font-medium cursor-default ${
+                        room.isPublic
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-purple-100 text-purple-700"
+                      }`}
                     >
-                      <Star
-                        className={`w-5 h-5 ${
-                          isFavorite
-                            ? "text-yellow-500 fill-yellow-500"
-                            : "text-gray-400"
-                        }`}
-                      />
+                      {room.isPublic ? "Public" : "Private"}
                     </button>
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      {room.title}
-                    </h3>
                   </div>
 
                   {/* 이미지와 정보 */}
@@ -372,19 +385,19 @@ export function Home() {
                         />
                       </div>
                       {/* 참여자 수 (이미지 아래) */}
-                      <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <Users className="w-4 h-4" />
+                      <div className="flex items-center gap-1 text-xs text-gray-600">
+                        <Users className="w-3 h-3" />
                         <span>{room.participants.length}명 참여중</span>
                       </div>
                     </div>
 
                     {/* 오른쪽: 정보 영역 */}
                     <div className="flex-1">
-                      <p className="text-sm text-gray-700 mb-2">
+                      <p className="text-xs text-gray-700 mb-2">
                         남은 조각 수: {remainingPieces}
                       </p>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm text-gray-700">
+                        <span className="text-xs text-gray-700">
                           필요한 컬러:
                         </span>
                         <div className="flex gap-1.5 items-center">
@@ -400,18 +413,18 @@ export function Home() {
                               e.stopPropagation();
                               // 더 많은 컬러 보기 기능 (추후 구현)
                             }}
-                            className="w-6 h-6 rounded border border-gray-300 bg-gray-100 flex items-center justify-center text-sm text-gray-600 hover:bg-gray-200 transition-colors"
+                            className="w-6 h-6 rounded border border-gray-300 bg-gray-100 flex items-center justify-center text-xs text-gray-600 hover:bg-gray-200 transition-colors"
                           >
                             +
                           </button>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                        <Clock className="w-4 h-4" />
+                      <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+                        <Clock className="w-3 h-3" />
                         <span>{timeLeft}</span>
                       </div>
                       {/* 설명 텍스트 */}
-                      <p className="text-sm text-gray-600">
+                      <p className="text-xs text-gray-600">
                         {room.title}을 같이 만들어봐요
                       </p>
                     </div>
@@ -478,13 +491,13 @@ export function Home() {
                     value={newRoomTitle}
                     onChange={(e) => setNewRoomTitle(e.target.value)}
                     placeholder="게시물 제목을 입력하세요"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-purple-400 transition-colors"
+                    className="w-full px-4 py-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-purple-400 transition-colors"
                   />
                 </div>
 
                 {/* 사진 업로드 */}
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-xs font-medium text-gray-700 mb-3">
                     사진을 업로드하세요
                   </p>
                   <label className="block">
@@ -513,11 +526,11 @@ export function Home() {
                           }`}
                         />
                         {uploadedImage ? (
-                          <span className="text-sm font-medium text-purple-600">
+                          <span className="text-xs font-medium text-purple-600">
                             {uploadedImage.name}
                           </span>
                         ) : (
-                          <span className="text-sm font-medium text-gray-700">
+                          <span className="text-xs font-medium text-gray-700">
                             클릭하여 사진 선택
                           </span>
                         )}
@@ -528,7 +541,7 @@ export function Home() {
 
                 {/* 조각 수 선택 */}
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-xs font-medium text-gray-700 mb-3">
                     조각 수를 선택하세요
                   </p>
                   <div className="flex gap-3">
@@ -536,7 +549,7 @@ export function Home() {
                       <button
                         key={pieces}
                         onClick={() => setSelectedPieces(pieces)}
-                        className={`flex-1 py-3 px-4 rounded-full border-2 transition-all ${
+                        className={`flex-1 py-3 px-4 text-sm rounded-full border-2 transition-all ${
                           selectedPieces === pieces
                             ? "border-purple-400 bg-purple-50 text-purple-600 font-semibold"
                             : "border-gray-200 text-gray-700 hover:border-gray-300"
@@ -550,12 +563,12 @@ export function Home() {
 
                 {/* 제한 시간 설정 */}
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-xs font-medium text-gray-700 mb-3">
                     제한 시간을 입력하세요
                   </p>
                   <button
                     onClick={() => setHasTimeLimit(!hasTimeLimit)}
-                    className={`w-full py-3 px-4 rounded-lg border-2 transition-all ${
+                    className={`w-full py-3 px-4 text-sm rounded-lg border-2 transition-all ${
                       !hasTimeLimit
                         ? "border-purple-400 bg-purple-50 text-purple-600 font-semibold"
                         : "border-gray-200 text-gray-700 hover:border-gray-300"
@@ -567,13 +580,13 @@ export function Home() {
 
                 {/* 참여 방식 선택 */}
                 <div className="mb-6">
-                  <p className="text-sm font-medium text-gray-700 mb-3">
+                  <p className="text-xs font-medium text-gray-700 mb-3">
                     참여 방식을 선택하세요
                   </p>
                   <div className="flex gap-3">
                     <button
                       onClick={() => setNewRoomIsPublic(true)}
-                      className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                      className={`flex-1 py-3 px-4 text-sm rounded-lg border-2 transition-all ${
                         newRoomIsPublic
                           ? "border-purple-400 bg-purple-50 text-purple-600 font-semibold"
                           : "border-gray-200 text-gray-700 hover:border-gray-300"
@@ -583,7 +596,7 @@ export function Home() {
                     </button>
                     <button
                       onClick={() => setNewRoomIsPublic(false)}
-                      className={`flex-1 py-3 px-4 rounded-lg border-2 transition-all ${
+                      className={`flex-1 py-3 px-4 text-sm rounded-lg border-2 transition-all ${
                         !newRoomIsPublic
                           ? "border-purple-400 bg-purple-50 text-purple-600 font-semibold"
                           : "border-gray-200 text-gray-700 hover:border-gray-300"
@@ -646,7 +659,7 @@ export function Home() {
                     }
                   }}
                   disabled={!newRoomTitle || !uploadedImage || isCreatingRoom}
-                  className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-4 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg text-sm font-semibold hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isCreatingRoom ? "생성 중..." : "게시물 생성하기"}
                 </button>
