@@ -231,10 +231,10 @@ export function Home() {
       <div className="max-w-md mx-auto px-4 py-6">
         {/* 상단 헤더 */}
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-white">
             BLEND<span className="lowercase">ee</span>
           </h1>
-          <span className="text-sm text-gray-700 font-medium">
+          <span className="text-sm text-white font-medium">
             {daysSinceStart} 일째
           </span>
         </div>
@@ -249,47 +249,10 @@ export function Home() {
             <HomeIcon className="w-8 h-8 text-gray-700" />
           </button>
 
-          {/* Be Our BLENDee! 텍스트 */}
-          <div
-            className="text-center mb-4"
-            style={{ transform: "rotate(-2deg)" }}
-          >
-            <p
-              className="text-3xl font-bold text-white mb-1"
-              style={{
-                textShadow: `
-                  0 1px 0 rgba(255,255,255,0.5),
-                  0 2px 2px rgba(0,0,0,0.1),
-                  0 4px 4px rgba(0,0,0,0.05),
-                  0 0 20px rgba(255,255,255,0.3)
-                `,
-                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-                letterSpacing: "0.05em",
-              }}
-            >
-              Be Our
-            </p>
-            <p
-              className="text-4xl font-bold text-white"
-              style={{
-                textShadow: `
-                  0 1px 0 rgba(255,255,255,0.5),
-                  0 2px 2px rgba(0,0,0,0.1),
-                  0 4px 4px rgba(0,0,0,0.05),
-                  0 0 20px rgba(255,255,255,0.3)
-                `,
-                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-                letterSpacing: "0.05em",
-              }}
-            >
-              BLEND<span className="lowercase">ee</span>!
-            </p>
-          </div>
-
           {/* 메뉴 영역 */}
           <div className="w-full relative">
             {/* 진행상황 확인하기 버튼 */}
-              <button
+            <button
               onClick={() => setIsMenuOpen(true)}
               onTouchStart={handleTouchStart}
               onTouchMove={handleTouchMove}
@@ -298,7 +261,7 @@ export function Home() {
             >
               <Menu className="w-5 h-5" />
               <span>진행상황 확인하기</span>
-              </button>
+            </button>
 
             {/* 통계 카드 (버튼 위치에서 확장) */}
             {isMenuOpen && (
@@ -337,7 +300,7 @@ export function Home() {
                       </span>
                     </div>
                   </div>
-            </div>
+                </div>
               </>
             )}
           </div>
@@ -430,8 +393,8 @@ export function Home() {
                               key={idx}
                               className="w-6 h-6 rounded border border-gray-300"
                               style={{ backgroundColor: color }}
-                />
-              ))}
+                            />
+                          ))}
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
@@ -453,7 +416,7 @@ export function Home() {
                       </p>
                     </div>
                   </div>
-            </div>
+                </div>
               );
             })
           )}
@@ -635,14 +598,14 @@ export function Home() {
                 <button
                   onClick={async () => {
                     if (!newRoomTitle || !uploadedImage) return;
-                    
+
                     setIsCreatingRoom(true);
                     try {
                       // 이미지를 base64로 변환
                       const reader = new FileReader();
                       reader.onloadend = async () => {
                         const imageDataUrl = reader.result as string;
-                        
+
                         try {
                           // 8x8 그리드로 이미지 분할 및 컬러 추출
                           const gridSize = 64; // 8x8
@@ -653,7 +616,7 @@ export function Home() {
                             hasTimeLimit ? 7 : 30, // 기본 30일, 제한 시간 설정 시 7일
                             gridSize
                           );
-                          
+
                           alert("게시물이 생성되었습니다!");
                           setIsCreateModalOpen(false);
                           setPanelOffset(0);
@@ -663,12 +626,14 @@ export function Home() {
                           setHasTimeLimit(false);
                           setNewRoomIsPublic(true);
                           setUploadedImage(null);
-                          
+
                           // 생성된 방으로 이동
                           navigate(`/room/${room.id}`);
                         } catch (error) {
                           console.error("게시물 생성 실패:", error);
-                          alert("게시물 생성에 실패했습니다. 다시 시도해주세요.");
+                          alert(
+                            "게시물 생성에 실패했습니다. 다시 시도해주세요."
+                          );
                         } finally {
                           setIsCreatingRoom(false);
                         }
@@ -687,7 +652,7 @@ export function Home() {
                 </button>
               </div>
             </div>
-        </div>
+          </div>
 
           {/* + 버튼 (패널 위에 겹쳐서 배치) */}
           <div
