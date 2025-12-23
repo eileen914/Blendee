@@ -92,7 +92,7 @@ export function WelcomeAnimation() {
         <div className="absolute inset-0 flex items-center justify-center z-10">
           <div className="text-center" style={{ transform: "rotate(-2deg)" }}>
             <p
-              className="text-4xl md:text-5xl font-bold text-white mb-2 animate-fade-in bevan-regular"
+              className="text-3xl md:text-4xl font-bold text-white mb-4 animate-fade-in bevan-regular"
               style={{
                 textShadow: `
                   0 1px 0 rgba(255,255,255,0.5),
@@ -101,13 +101,13 @@ export function WelcomeAnimation() {
                   0 0 20px rgba(255,255,255,0.3)
                 `,
                 filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-                letterSpacing: "0.05em",
+                letterSpacing: "0em",
               }}
             >
               Be Our
             </p>
             <p
-              className="text-5xl md:text-6xl font-bold text-white animate-fade-in-delay bevan-regular"
+              className="text-4xl md:text-5xl font-bold text-white animate-fade-in-delay bevan-regular"
               style={{
                 textShadow: `
                   0 1px 0 rgba(255,255,255,0.5),
@@ -116,7 +116,7 @@ export function WelcomeAnimation() {
                   0 0 20px rgba(255,255,255,0.3)
                 `,
                 filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-                letterSpacing: "0.05em",
+                letterSpacing: "0em",
               }}
             >
               BLEND<span className="lowercase">ee</span>!

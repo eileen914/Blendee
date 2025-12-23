@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Home as HomeIcon, Users } from "lucide-react";
+import { Users } from "lucide-react";
 import { mockRooms } from "../utils/mockData";
 
 export function MyPosts() {
@@ -37,7 +37,40 @@ export function MyPosts() {
             onClick={() => navigate("/mypage")}
             className="w-14 h-14 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm hover:shadow-md transition-shadow cursor-pointer"
           >
-            <HomeIcon className="w-6 h-6 text-gray-500" />
+            <svg
+              className="w-6 h-6"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <linearGradient
+                  id="homeGradientMyPosts"
+                  x1="0%"
+                  y1="0%"
+                  x2="0%"
+                  y2="100%"
+                >
+                  <stop offset="0%" stopColor="#e0f2fe" />
+                  <stop offset="50%" stopColor="#fef3c7" />
+                  <stop offset="100%" stopColor="#fce7f3" />
+                </linearGradient>
+              </defs>
+              <path
+                d="M3 9L12 2L21 9V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9Z"
+                stroke="url(#homeGradientMyPosts)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M9 22V12H15V22"
+                stroke="url(#homeGradientMyPosts)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
           </button>
         </div>
 
